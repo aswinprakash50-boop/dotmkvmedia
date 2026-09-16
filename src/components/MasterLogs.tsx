@@ -130,13 +130,13 @@ export default function MasterLogs({
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-4 sm:space-y-6 animate-fadeIn">
       {/* View Switcher & Header */}
-      <div className="glass-panel rounded-2xl p-6 border border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="glass-panel rounded-2xl p-4 sm:p-6 border border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-black text-white tracking-tight">Master Work Ledger</h2>
-            <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-mono font-bold border border-indigo-500/30">
+            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">Master Work Ledger</h2>
+            <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-mono font-bold border border-indigo-500/30">
               {totalItems} Records
             </span>
           </div>
@@ -146,34 +146,34 @@ export default function MasterLogs({
         </div>
 
         {/* Mode Toggle Buttons */}
-        <div className="flex items-center p-1 rounded-xl bg-gray-950 border border-gray-800 shrink-0">
+        <div className="flex items-center p-1 rounded-xl bg-gray-950 border border-gray-800 shrink-0 w-full sm:w-auto">
           <button
             onClick={() => handleViewModeChange('projects')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               viewMode === 'projects'
                 ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
                 : 'text-gray-400 hover:text-gray-200'
             }`}
           >
-            <Layers className="w-3.5 h-3.5" />
-            <span>Distinct Projects ({projects.length})</span>
+            <Layers className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Distinct Projects ({projects.length})</span>
           </button>
           <button
             onClick={() => handleViewModeChange('daily')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               viewMode === 'daily'
                 ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
                 : 'text-gray-400 hover:text-gray-200'
             }`}
           >
-            <ListFilter className="w-3.5 h-3.5" />
-            <span>Daily Logs ({tasks.length})</span>
+            <ListFilter className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Daily Logs ({tasks.length})</span>
           </button>
         </div>
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="glass-panel rounded-2xl p-4 border border-white/5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <div className="glass-panel rounded-2xl p-3 sm:p-4 border border-white/5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
         {/* Search */}
         <div className="relative flex-1">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-500">
@@ -192,7 +192,7 @@ export default function MasterLogs({
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
           {/* Status Filter */}
           <select
             value={selectedStatus}
@@ -200,7 +200,7 @@ export default function MasterLogs({
               setSelectedStatus(e.target.value);
               setCurrentPage(1);
             }}
-            className="px-3 py-2 bg-gray-900/90 border border-gray-800 rounded-xl text-gray-300 text-xs focus:outline-none focus:border-indigo-500 cursor-pointer"
+            className="w-full sm:w-auto px-2.5 sm:px-3 py-2 bg-gray-900/90 border border-gray-800 rounded-xl text-gray-300 text-xs focus:outline-none focus:border-indigo-500 cursor-pointer"
           >
             <option value="ALL">All Statuses</option>
             <option value="Delivered">Delivered</option>
@@ -215,7 +215,7 @@ export default function MasterLogs({
               setSelectedClient(e.target.value);
               setCurrentPage(1);
             }}
-            className="px-3 py-2 bg-gray-900/90 border border-gray-800 rounded-xl text-gray-300 text-xs focus:outline-none focus:border-indigo-500 cursor-pointer max-w-[150px] truncate"
+            className="w-full sm:w-auto px-2.5 sm:px-3 py-2 bg-gray-900/90 border border-gray-800 rounded-xl text-gray-300 text-xs focus:outline-none focus:border-indigo-500 cursor-pointer max-w-full sm:max-w-[150px] truncate"
           >
             <option value="ALL">All Clients</option>
             {clientSummaries.map((c) => (
@@ -232,7 +232,7 @@ export default function MasterLogs({
               setSelectedEmployee(e.target.value);
               setCurrentPage(1);
             }}
-            className="px-3 py-2 bg-gray-900/90 border border-gray-800 rounded-xl text-gray-300 text-xs focus:outline-none focus:border-indigo-500 cursor-pointer"
+            className="w-full sm:w-auto px-2.5 sm:px-3 py-2 bg-gray-900/90 border border-gray-800 rounded-xl text-gray-300 text-xs focus:outline-none focus:border-indigo-500 cursor-pointer"
           >
             <option value="ALL">All Editors</option>
             {employees.map((emp) => (
@@ -246,7 +246,7 @@ export default function MasterLogs({
           <button
             onClick={handleExportCsv}
             title="Export view to CSV"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition-colors cursor-pointer"
+            className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition-colors cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export CSV</span>
@@ -254,12 +254,12 @@ export default function MasterLogs({
         </div>
       </div>
 
-      {/* Table Display */}
+      {/* Table Display with horizontal scroll support */}
       <div className="glass-panel rounded-2xl border border-white/5 overflow-hidden">
         <div className="overflow-x-auto">
           {viewMode === 'projects' ? (
             /* Deduplicated Distinct Projects View */
-            <table className="w-full text-left text-xs">
+            <table className="min-w-[760px] w-full text-left text-xs">
               <thead>
                 <tr className="bg-[#0e1424] border-b border-gray-800 text-gray-400 font-semibold uppercase tracking-wider">
                   <th className="py-3.5 px-4">Project Name</th>
@@ -279,14 +279,14 @@ export default function MasterLogs({
                       <div className="truncate">{p.projectName}</div>
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="px-2.5 py-1 rounded-lg bg-gray-900 border border-gray-800 text-indigo-300 font-semibold text-[11px]">
+                      <span className="px-2.5 py-1 rounded-lg bg-gray-900 border border-gray-800 text-indigo-300 font-semibold text-[11px] whitespace-nowrap">
                         {p.client}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-right font-mono font-bold text-white text-sm">
+                    <td className="py-3.5 px-4 text-right font-mono font-bold text-white text-sm whitespace-nowrap">
                       {p.totalHours}h
                     </td>
-                    <td className="py-3.5 px-4 text-center">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       <span className="font-mono text-gray-400 bg-gray-900/60 px-2 py-0.5 rounded text-[11px]">
                         {p.dailyLogsCount} {p.dailyLogsCount === 1 ? 'day' : 'days'}
                       </span>
@@ -296,7 +296,7 @@ export default function MasterLogs({
                         {p.team.map((m) => (
                           <span
                             key={m}
-                            className="px-2 py-0.5 rounded bg-gray-800/80 text-gray-300 text-[11px]"
+                            className="px-2 py-0.5 rounded bg-gray-800/80 text-gray-300 text-[11px] whitespace-nowrap"
                           >
                             {m}
                           </span>
@@ -306,10 +306,10 @@ export default function MasterLogs({
                     <td className="py-3.5 px-4 font-mono text-gray-400 text-[11px] whitespace-nowrap">
                       {p.earliestStart || '—'} → {p.latestDelivered || 'In Progress'}
                     </td>
-                    <td className="py-3.5 px-4 text-center font-mono text-amber-300 font-semibold">
+                    <td className="py-3.5 px-4 text-center font-mono text-amber-300 font-semibold whitespace-nowrap">
                       {p.tatDays !== null ? `${p.tatDays}d` : '—'}
                     </td>
-                    <td className="py-3.5 px-4 text-center">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       <span
                         className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                           p.status === 'Delivered'
@@ -328,7 +328,7 @@ export default function MasterLogs({
             </table>
           ) : (
             /* Daily Progress Logs View */
-            <table className="w-full text-left text-xs">
+            <table className="min-w-[760px] w-full text-left text-xs">
               <thead>
                 <tr className="bg-[#0e1424] border-b border-gray-800 text-gray-400 font-semibold uppercase tracking-wider">
                   <th className="py-3.5 px-4">Date</th>
@@ -348,30 +348,30 @@ export default function MasterLogs({
                     <td className="py-3.5 px-4 font-mono text-indigo-300 font-semibold whitespace-nowrap">
                       {t.date}
                     </td>
-                    <td className="py-3.5 px-4 font-bold text-white">
+                    <td className="py-3.5 px-4 font-bold text-white whitespace-nowrap">
                       {t.employee}
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="px-2 py-0.5 rounded bg-gray-900 border border-gray-800 text-gray-300 text-[11px]">
+                      <span className="px-2 py-0.5 rounded bg-gray-900 border border-gray-800 text-gray-300 text-[11px] whitespace-nowrap">
                         {t.client}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 font-semibold text-gray-200 max-w-xs truncate">
                       {t.project}
                     </td>
-                    <td className="py-3.5 px-4 text-right font-mono font-bold text-white text-sm">
+                    <td className="py-3.5 px-4 text-right font-mono font-bold text-white text-sm whitespace-nowrap">
                       {t.hours}h
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-gray-400 text-[11px]">
+                    <td className="py-3.5 px-4 font-mono text-gray-400 text-[11px] whitespace-nowrap">
                       {t.started || '—'}
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-gray-400 text-[11px]">
+                    <td className="py-3.5 px-4 font-mono text-gray-400 text-[11px] whitespace-nowrap">
                       {t.delivered || '—'}
                     </td>
-                    <td className="py-3.5 px-4 text-center font-mono text-amber-300 font-semibold">
+                    <td className="py-3.5 px-4 text-center font-mono text-amber-300 font-semibold whitespace-nowrap">
                       {t.tat_days !== null && t.tat_days !== undefined ? `${t.tat_days}d` : '—'}
                     </td>
-                    <td className="py-3.5 px-4 text-center">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       <span
                         className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                           t.status === 'Delivered'
@@ -400,8 +400,8 @@ export default function MasterLogs({
 
         {/* Pagination controls */}
         {totalPages > 1 && (
-          <div className="px-4 py-3 border-t border-gray-800 bg-[#0c111e] flex items-center justify-between text-xs">
-            <span className="text-gray-400">
+          <div className="px-3 sm:px-4 py-3 border-t border-gray-800 bg-[#0c111e] flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs">
+            <span className="text-gray-400 text-center sm:text-left">
               Showing page <span className="font-bold text-white">{currentPage}</span> of{' '}
               <span className="font-bold text-white">{totalPages}</span> ({totalItems} total)
             </span>

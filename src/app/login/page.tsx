@@ -45,7 +45,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] flex flex-col justify-center items-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#0b0f19] flex flex-col justify-center items-center px-3.5 sm:px-4 py-8 relative overflow-hidden">
       {/* Background ambient lighting */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/3 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -53,25 +53,25 @@ export default function LoginPage() {
       {/* Main Login Card */}
       <div className="w-full max-w-md z-10">
         {/* Brand Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 shadow-xl shadow-indigo-500/20 mb-4 border border-indigo-400/30">
-            <Film className="w-7 h-7 text-white" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 shadow-xl shadow-indigo-500/20 mb-3 sm:mb-4 border border-indigo-400/30">
+            <Film className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center justify-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center justify-center gap-2">
             dot<span className="text-indigo-400">MKV</span>
-            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-indigo-950/80 text-indigo-300 border border-indigo-800/60 uppercase tracking-wider">
+            <span className="text-[10px] sm:text-xs font-mono px-2 py-0.5 rounded-full bg-indigo-950/80 text-indigo-300 border border-indigo-800/60 uppercase tracking-wider">
               Studio Suite
             </span>
           </h1>
-          <p className="text-sm text-gray-400 mt-2">
+          <p className="text-xs sm:text-sm text-gray-400 mt-1.5 sm:mt-2">
             Timesheet Intelligence & Executive Analytics Dashboard
           </p>
         </div>
 
-        <div className="glass-panel rounded-2xl p-8 border border-white/10 shadow-2xl relative">
-          <div className="flex items-center justify-between pb-6 border-b border-gray-800 mb-6">
+        <div className="glass-panel rounded-2xl p-5 sm:p-8 border border-white/10 shadow-2xl relative">
+          <div className="flex items-center justify-between pb-4 sm:pb-6 border-b border-gray-800 mb-5 sm:mb-6">
             <div>
-              <h2 className="text-lg font-semibold text-white">Admin Authentication</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-white">Admin Authentication</h2>
               <p className="text-xs text-gray-400 mt-0.5">Please sign in to access the studio records</p>
             </div>
             <div className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">

@@ -100,7 +100,7 @@ export default function DashboardPage() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {activeTab === 'overview' && (
           <CompanyOverview
             data={dataset}
@@ -147,8 +147,8 @@ export default function DashboardPage() {
       />
 
       {/* Studio Footer */}
-      <footer className="border-t border-gray-800/80 bg-[#090d16] py-6 text-center text-xs text-gray-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <footer className="border-t border-gray-800/80 bg-[#090d16] py-4 sm:py-6 text-center text-[11px] sm:text-xs text-gray-500">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>dotMKV Production Studio • Executive Analytics Platform</span>
           <span className="font-mono text-gray-400">Next.js App Router • SheetJS • Tailwind CSS</span>
         </div>

@@ -81,37 +81,37 @@ export default function UploadModal({ isOpen, onClose, onUploadSuccess }: Upload
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-fadeIn">
-      <div className="w-full max-w-lg glass-panel rounded-3xl p-6 border border-white/10 shadow-2xl relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4 animate-fadeIn">
+      <div className="w-full max-w-lg glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/10 shadow-2xl relative">
         {/* Close button */}
         <button
           onClick={onClose}
           disabled={uploading}
-          className="absolute top-5 right-5 p-2 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800 transition-colors cursor-pointer"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 p-1.5 sm:p-2 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800 transition-colors cursor-pointer"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
         {/* Title */}
-        <div className="mb-6">
-          <div className="inline-flex p-2.5 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 mb-3">
-            <FileSpreadsheet className="w-6 h-6" />
+        <div className="mb-4 sm:mb-6 pr-6">
+          <div className="inline-flex p-2 sm:p-2.5 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 mb-2 sm:mb-3">
+            <FileSpreadsheet className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <h3 className="text-xl font-black text-white">Import Timesheet Workbook</h3>
-          <p className="text-xs text-gray-400 mt-1">
+          <h3 className="text-lg sm:text-xl font-black text-white">Import Timesheet Workbook</h3>
+          <p className="text-[11px] sm:text-xs text-gray-400 mt-1">
             Upload any team timesheet (.xlsx) to parse employee sheets, deduplicate deliverables by client, and recalculate studio analytics.
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+          <div className="mb-3 sm:mb-4 p-3 sm:p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
             <span>{error}</span>
           </div>
         )}
 
         {successMsg && (
-          <div className="mb-4 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+          <div className="mb-3 sm:mb-4 p-3 sm:p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
             <span>{successMsg}</span>
           </div>
@@ -123,7 +123,7 @@ export default function UploadModal({ isOpen, onClose, onUploadSuccess }: Upload
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
+          className={`border-2 border-dashed rounded-xl sm:rounded-2xl p-5 sm:p-8 text-center cursor-pointer transition-all ${
             isDragging
               ? 'border-indigo-500 bg-indigo-950/40'
               : 'border-gray-700 hover:border-indigo-500/60 bg-gray-900/40 hover:bg-gray-900/80'
