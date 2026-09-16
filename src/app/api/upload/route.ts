@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseWorkbookBuffer } from '@/lib/parser';
 import { buildCompleteDataset } from '@/lib/deduplication';
+import { saveLatestDataset } from '@/lib/storage';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,9 +23,13 @@ export async function POST(request: NextRequest) {
     }
 
     const dataset = buildCompleteDataset(tasks, employees, file.name);
+
+    // Persist latest dataset to backend storage
+    saveLatestDataset(dataset, buffer, file.name);
+
     return NextResponse.json({
       success: true,
-      message: `Parsed ${tasks.length} daily logs across ${dataset.projects.length} distinct projects`,
+      message: `Parsed and stored ${tasks.length} daily logs across ${dataset.projects.length} distinct projects`,
       data: dataset,
     });
   } catch (err: any) {

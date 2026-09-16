@@ -58,9 +58,12 @@ A full-stack **Next.js 14 + React + TypeScript + Tailwind CSS** executive analyt
    - Multi-metric comparative ranking table and visual bars.
    - Client portfolio matrix detailing allocated hours, project lists, and editor assignments.
 
-8. **Dynamic Excel Upload (.xlsx / .xls)**:
+8. **Dynamic Excel Upload & Backend Persistence**:
    - Server-side SheetJS parser supporting multi-sheet timesheets.
-   - Instant recalculation of all KPIs upon file upload.
+   - **Persistent Backend Storage**: Whenever an Excel file is uploaded, the parsed dataset is automatically persisted on the backend (multi-tier storage: in-memory global cache, disk `data/latest_dataset.json`, and `/tmp/` serverless fallback).
+   - Any page reload, browser refresh, or subsequent visitor immediately sees the latest uploaded data.
+   - Instant recalculation of all KPIs, deduplicated project views, attendance calendars, and master ledgers.
+   - One-click "Reset Baseline" restores the original September 2026 dataset.
 
 ---
 
@@ -122,6 +125,7 @@ dotMKV dashboard/
 │   │   ├── auth.ts               # Admin auth & cookie helpers
 │   │   ├── deduplication.ts      # Client+Project deduplication engine
 │   │   ├── parser.ts             # SheetJS Excel parser
+│   │   ├── storage.ts            # Multi-tier backend persistence engine
 │   │   ├── types.ts              # TypeScript interfaces
 │   │   └── defaultData.ts        # Preloaded September 2026 data
 │   └── middleware.ts             # Route protection middleware

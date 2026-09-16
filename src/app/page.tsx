@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Tabs, { TabKey } from '@/components/Tabs';
@@ -23,6 +23,18 @@ export default function DashboardPage() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
+  // Load latest stored data from backend on initial visit or refresh
+  useEffect(() => {
+    fetch('/api/data')
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && json.data) {
+          setDataset(json.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setToast({ message, type });
     setTimeout(() => {
@@ -40,8 +52,22 @@ export default function DashboardPage() {
     }
   };
 
-  const handleResetBaseline = () => {
-    setDataset(baselineDataset);
+  const handleResetBaseline = async () => {
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reset' }),
+      });
+      const json = await res.json();
+      if (json.success && json.data) {
+        setDataset(json.data);
+      } else {
+        setDataset(baselineDataset);
+      }
+    } catch {
+      setDataset(baselineDataset);
+    }
     showToast('Reset to default September 2026 timesheet data', 'info');
   };
 

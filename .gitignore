@@ -28,3 +28,7 @@ yarn-debug.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Runtime uploaded timesheet datasets
+data/latest_dataset.json
+data/*.xlsx
