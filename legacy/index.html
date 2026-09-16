@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dotMKV | Production Studio & Employee Performance Dashboard</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            studio: {
+              950: '#070a12',
+              900: '#090d16',
+              850: '#0f172a',
+              800: '#1e293b',
+              700: '#334155'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Chart.js & SheetJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen relative selection:bg-indigo-500 selection:text-white">
+
+  <!-- Ambient Glow Effect -->
+  <div class="bg-glow-mesh"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Main App Shell -->
+  <div class="relative z-10 flex flex-col min-h-screen">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 p-0.5 shadow-lg shadow-indigo-500/25 flex items-center justify-center">
+          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center font-extrabold text-lg text-white tracking-wider">
+            .mkv
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-base sm:text-lg tracking-tight text-white">dotMKV Studio</h1>
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-950/80 text-indigo-400 border border-indigo-800/60 uppercase tracking-wide">
+              Pulse
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Employee Work Status & Performance Tracker</p>
+        </div>
+      </div>
+
+      <!-- Action Center -->
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <!-- Current Active File Tag -->
+        <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+          <span class="pulse-dot bg-emerald-400"></span>
+          <span class="text-slate-400">File:</span>
+          <span id="current-filename-badge" class="font-mono font-medium text-slate-200">Timesheet-September2026.xlsx</span>
+        </div>
+
+        <!-- Reset Button -->
+        <button id="btn-reset-data" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-300 transition-all flex items-center gap-1.5" title="Revert to September 2026 baseline data">
+          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          Reset Baseline
+        </button>
+
+        <!-- Upload Button -->
+        <button id="btn-open-upload" class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          Upload Timesheet (.xlsx)
+        </button>
+      </div>
+    </header>
+
+    <!-- Subheader Tab Navigation -->
+    <nav class="border-b border-slate-800/60 bg-slate-950/50 backdrop-blur-md px-4 sm:px-8 py-2.5 overflow-x-auto">
+      <div class="flex items-center gap-2 min-w-max">
+        <button class="nav-tab-btn active" data-tab="company">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          Company Profile
+        </button>
+        <button class="nav-tab-btn" data-tab="employee">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          Employee Performance Hub
+        </button>
+        <button class="nav-tab-btn" data-tab="comparison">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Team Comparison Matrix
+        </button>
+        <button class="nav-tab-btn" data-tab="clients">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          Client & Collaboration Matrix
+        </button>
+        <button class="nav-tab-btn" data-tab="logs">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+          Master Work Logs & Projects
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content Body -->
+    <main class="flex-1 p-4 sm:p-8 max-w-7xl mx-auto w-full">
+
+      <!-- ==========================================
+           TAB 1: COMPANY PROFILE (EXECUTIVE OVERVIEW)
+           ========================================== -->
+      <section id="tab-content-company" class="tab-content-section space-y-8">
+        
+        <!-- KPI Cards Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <!-- Total Hours -->
+          <div class="glass-panel p-5 card-glow-indigo">
+            <div class="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
+              <span>Total Hours Logged</span>
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div id="kpi-total-hours" class="text-2xl sm:text-3xl font-extrabold text-white font-mono tracking-tight">304.5 hrs</div>
+            <div class="mt-2 text-xs text-indigo-300 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+              <span id="kpi-daily-company-avg">23.4 hrs/day avg</span>
+            </div>
+          </div>
+
+          <!-- Completed Deliveries -->
+          <div class="glass-panel p-5 card-glow-emerald">
+            <div class="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
+              <span>Delivered Projects</span>
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div id="kpi-total-deliveries" class="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono tracking-tight">24</div>
+            <div class="mt-2 text-xs text-emerald-300 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>Completion Rate: <strong id="kpi-completion-rate">63%</strong></span>
+            </div>
+          </div>
+
+          <!-- Active Team -->
+          <div class="glass-panel p-5 card-glow-cyan">
+            <div class="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
+              <span>Team Members</span>
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            </div>
+            <div id="kpi-active-team" class="text-2xl sm:text-3xl font-extrabold text-cyan-400 font-mono tracking-tight">6</div>
+            <div class="mt-2 text-xs text-cyan-300 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+              <span>100% active contributors</span>
+            </div>
+          </div>
+
+          <!-- Distinct Projects (Deduplicated) -->
+          <div class="glass-panel p-5 card-glow-amber">
+            <div class="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
+              <span>Distinct Projects</span>
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            </div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono tracking-tight">
+              <span id="kpi-active-projects">38</span> <span class="text-sm text-slate-500 font-normal">projects</span>
+            </div>
+            <div class="mt-2 text-xs text-amber-300 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              <span id="kpi-active-projects-sub">from 64 daily progress logs</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row 1: Company Timeline & Client Share -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="glass-panel p-6 lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-bold text-base text-white">Daily Studio Production Workload</h3>
+                <p class="text-xs text-slate-400">Total hours logged across all projects per calendar day</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-xs font-mono bg-slate-900 border border-slate-800 text-indigo-300">
+                Timeline
+              </span>
+            </div>
+            <div class="chart-container" style="height: 280px;">
+              <canvas id="chart-company-trend"></canvas>
+            </div>
+          </div>
+
+          <div class="glass-panel p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-bold text-base text-white">Client Hours Share</h3>
+                <p class="text-xs text-slate-400">Production effort by client studio</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-xs font-mono bg-slate-900 border border-slate-800 text-cyan-300">
+                Breakdown
+              </span>
+            </div>
+            <div class="chart-container" style="height: 280px;">
+              <canvas id="chart-client-share"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row 2: Employee Comparison & Activity Heatmap -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Employee Workload Bar Chart -->
+          <div class="glass-panel p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-bold text-base text-white">Team Output (Hours vs Unique Projects)</h3>
+                <p class="text-xs text-slate-400">Hours logged vs unique projects completed and handled</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-xs font-mono bg-slate-900 border border-slate-800 text-emerald-300">
+                Deduplicated Output
+              </span>
+            </div>
+            <div class="chart-container" style="height: 270px;">
+              <canvas id="chart-employee-hours"></canvas>
+            </div>
+          </div>
+
+          <!-- Studio Activity Heatmap -->
+          <div class="glass-panel p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <div>
+                  <h3 class="font-bold text-base text-white">Daily Attendance & Effort Heatmap</h3>
+                  <p class="text-xs text-slate-400">Hours logged by each team member per date</p>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] text-slate-400">
+                  <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-indigo-500/60 inline-block"></span> 1-5h</span>
+                  <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-emerald-500 inline-block"></span> 6-8h</span>
+                  <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-rose-500 inline-block"></span> &gt;8h</span>
+                </div>
+              </div>
+              <div id="heatmap-container" class="mt-4"></div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80 text-xs text-slate-400 flex items-center justify-between">
+              <span>* Daily entries grouped into distinct project deliverables per client</span>
+              <span id="heatmap-summary-badge" class="font-mono text-indigo-400">39 Projects • 64 Daily Logs</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Studios Leaderboard -->
+        <div class="glass-panel p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-bold text-base text-white">Top Client Studios by Production Volume</h3>
+              <p class="text-xs text-slate-400">Distinct projects and production hours per client</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm custom-table">
+              <thead>
+                <tr>
+                  <th>Client Studio</th>
+                  <th>Hours Dedicated</th>
+                  <th>Distinct Projects</th>
+                  <th>Production Team</th>
+                </tr>
+              </thead>
+              <tbody id="top-clients-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ==========================================
+           TAB 2: EMPLOYEE PERFORMANCE HUB
+           ========================================== -->
+      <section id="tab-content-employee" class="tab-content-section hidden space-y-8">
+        
+        <!-- Employee Quick Switcher Cards -->
+        <div>
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Select Team Member</div>
+          <div id="employee-selector-cards" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div>
+        </div>
+
+        <!-- Selected Employee Hero Stats -->
+        <div class="glass-panel p-6 border-l-4 border-l-indigo-500">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div class="flex items-center gap-4">
+              <div class="avatar-badge w-14 h-14 text-xl">
+                <span id="emp-profile-name-initial">EP</span>
+              </div>
+              <div>
+                <h2 id="emp-profile-name" class="text-2xl font-extrabold text-white">Employee Name</h2>
+                <p class="text-xs text-slate-400">Creative Production & Video Post Specialist • dotMKV Studio</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1.5 rounded-xl bg-indigo-950/80 border border-indigo-500/40 text-xs font-mono font-bold text-indigo-300">
+                September 2026 Review
+              </span>
+            </div>
+          </div>
+
+          <!-- Employee Stat Cards (Deduplicated) -->
+          <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+            <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div class="text-xs text-slate-400 mb-1">Total Hours</div>
+              <div id="emp-profile-hours" class="text-xl font-bold font-mono text-cyan-400">0 hrs</div>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div class="text-xs text-slate-400 mb-1">Distinct Projects</div>
+              <div id="emp-profile-distinct-projects" class="text-xl font-bold font-mono text-white">0</div>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div class="text-xs text-slate-400 mb-1">Projects Delivered</div>
+              <div id="emp-profile-delivered" class="text-xl font-bold font-mono text-emerald-400">0</div>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div class="text-xs text-slate-400 mb-1">Daily Pace</div>
+              <div id="emp-profile-avg-hours" class="text-xl font-bold font-mono text-indigo-400">0 hrs/day</div>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div class="text-xs text-slate-400 mb-1">Daily Progress Logs</div>
+              <div id="emp-profile-daily-logs-count" class="text-base font-bold font-mono text-slate-300">0 logs</div>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div class="text-xs text-slate-400 mb-1">Overtime Days (>8h)</div>
+              <div id="emp-profile-overtime" class="text-xl font-bold font-mono text-rose-400">0 days</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employee Specific Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="glass-panel p-6 lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-bold text-base text-white">Daily Production Pace</h3>
+                <p class="text-xs text-slate-400">Hours worked per day (Rose: >8h Overtime, Green: 6-8h Standard, Blue: &lt;6h)</p>
+              </div>
+            </div>
+            <div class="chart-container" style="height: 260px;">
+              <canvas id="chart-emp-daily"></canvas>
+            </div>
+          </div>
+
+          <div class="glass-panel p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-bold text-base text-white">Client Portfolio</h3>
+                <p class="text-xs text-slate-400">Hours distributed across clients</p>
+              </div>
+            </div>
+            <div class="chart-container" style="height: 260px;">
+              <canvas id="chart-emp-clients"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employee Task / Project Ledger Table -->
+        <div class="glass-panel p-6">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div>
+              <h3 class="font-bold text-base text-white">Employee Work Ledger</h3>
+              <p class="text-xs text-slate-400">Toggle between deduplicated projects and granular daily logs</p>
+            </div>
+            <div class="inline-flex p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+              <button id="btn-emp-view-projects" class="px-3 py-1 rounded-lg font-semibold bg-indigo-600 text-white transition-all">
+                Distinct Projects
+              </button>
+              <button id="btn-emp-view-entries" class="px-3 py-1 rounded-lg font-semibold bg-slate-800 text-slate-400 hover:text-slate-200 transition-all">
+                Daily Progress Logs
+              </button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm custom-table">
+              <thead id="emp-ledger-thead"></thead>
+              <tbody id="emp-ledger-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ==========================================
+           TAB 3: TEAM COMPARISON MATRIX
+           ========================================== -->
+      <section id="tab-content-comparison" class="tab-content-section hidden space-y-8">
+        <div class="glass-panel p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-bold text-base text-white">Team Member Performance Leaderboard</h3>
+              <p class="text-xs text-slate-400">Deduplicated comparison: Total Hours, Distinct Projects, Deliveries, and Daily Logs</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm custom-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Team Member</th>
+                  <th>Total Hours</th>
+                  <th>Active Days</th>
+                  <th>Avg Daily Output</th>
+                  <th>Distinct Projects</th>
+                  <th>Completed Projects</th>
+                  <th>Daily Progress Updates</th>
+                  <th>Client Reach</th>
+                </tr>
+              </thead>
+              <tbody id="comparison-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Comparative Chart -->
+        <div class="glass-panel p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-bold text-base text-white">Multi-Dimensional Productivity Metrics</h3>
+              <p class="text-xs text-slate-400">Side-by-side comparison of total hours, unique projects delivered, and distinct projects handled</p>
+            </div>
+          </div>
+          <div class="chart-container" style="height: 320px;">
+            <canvas id="chart-comparison-radar"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 4: CLIENT & COLLABORATION MATRIX
+           ========================================== -->
+      <section id="tab-content-clients" class="tab-content-section hidden space-y-8">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-bold text-lg text-white">Client Portfolio & Project Collaboration</h3>
+              <p class="text-xs text-slate-400">Overview of all 11 client accounts with deduplicated projects and team allocation</p>
+            </div>
+          </div>
+          <div id="client-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 5: MASTER WORK LOGS & PROJECTS LEDGER
+           ========================================== -->
+      <section id="tab-content-logs" class="tab-content-section hidden space-y-6">
+        
+        <!-- Filter Bar -->
+        <div class="glass-panel p-5">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-800/80">
+            <!-- View Mode Switcher -->
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-semibold uppercase text-slate-400">View Mode:</span>
+              <div class="inline-flex p-1 rounded-xl bg-slate-900 border border-slate-800">
+                <button id="btn-view-projects" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white transition-all flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                  Distinct Projects (Deduplicated)
+                </button>
+                <button id="btn-view-entries" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 transition-all flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                  Daily Progress Logs (All Entries)
+                </button>
+              </div>
+            </div>
+
+            <!-- Export Button -->
+            <button id="btn-export-csv" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+              <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Export Current View CSV
+            </button>
+          </div>
+
+          <!-- Search and Dropdown Filters -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 items-center">
+            <div class="lg:col-span-2 relative">
+              <input type="text" id="search-input" placeholder="Search project title, client, or team member..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors">
+            </div>
+
+            <div>
+              <select id="filter-employee" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                <option value="ALL">All Employees</option>
+              </select>
+            </div>
+
+            <div>
+              <select id="filter-client" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                <option value="ALL">All Clients</option>
+              </select>
+            </div>
+
+            <div>
+              <select id="filter-status" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                <option value="ALL">All Statuses</option>
+                <option value="Delivered">Delivered</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Pending">Pending</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2 text-xs text-slate-400 flex items-center gap-2">
+            <span class="pulse-dot bg-indigo-400"></span>
+            <span>Showing <strong id="filtered-count-badge" class="text-slate-200">0</strong></span>
+          </div>
+        </div>
+
+        <!-- Master Log Table -->
+        <div class="glass-panel overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm custom-table">
+              <thead id="master-logs-thead"></thead>
+              <tbody id="master-logs-tbody"></tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Bar -->
+          <div id="pagination-controls" class="p-4 border-t border-slate-800/80 flex items-center justify-between"></div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 py-5 px-4 sm:px-8 text-center text-xs text-slate-500">
+      dotMKV Studio • Creative Video Production & Performance Management System • September 2026
+    </footer>
+
+  </div>
+
+  <!-- Upload Modal -->
+  <div id="upload-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel max-w-lg w-full p-6 relative border border-indigo-500/30 card-glow-indigo">
+      <button id="btn-close-upload" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 flex items-center justify-center mx-auto mb-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-white">Upload Timesheet File</h3>
+        <p class="text-xs text-slate-400 mt-1">Upload your employee work tracker Excel spreadsheet (.xlsx)</p>
+      </div>
+
+      <div id="dropzone" class="dropzone p-8 text-center border-dashed rounded-2xl flex flex-col items-center justify-center mb-4">
+        <svg class="w-10 h-10 text-indigo-400/80 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <p class="text-sm font-semibold text-slate-200">Drag & drop your Excel file here</p>
+        <p class="text-xs text-slate-400 mt-1">or click to browse your files</p>
+        <input type="file" id="file-upload-input" accept=".xlsx,.xls" class="hidden">
+      </div>
+
+      <div class="text-[11px] text-slate-400 space-y-1 bg-slate-900/50 p-3 rounded-xl border border-slate-800">
+        <div class="font-semibold text-slate-300">Automatic Project Grouping:</div>
+        <div>• Daily progress rows are automatically grouped by project title to prevent duplicate project counts</div>
+        <div>• Computes cumulative hours, total progress updates, and project completion status</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
